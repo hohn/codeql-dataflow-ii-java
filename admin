@@ -28,13 +28,23 @@ create-db () {
         user_id INTEGER not null,
         name TEXT NOT NULL
     );
+    CREATE TABLE nicknames (
+        name TEXT NOT NULL,
+        nickname TEXT NOT NULL
+    );
     '  | sqlite3 users.sqlite 
 }        
 
 show-db () {
+    echo "users:"
     echo '
     SELECT * FROM users;
     ' | sqlite3 users.sqlite 
+    echo Nicknames:
+    echo '
+    SELECT * FROM nicknames;
+    ' | sqlite3 users.sqlite 
+
 }
 
 if [ $# == 0 ]; then 

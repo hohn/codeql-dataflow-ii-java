@@ -1,6 +1,7 @@
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -53,13 +54,40 @@ public class AddUser {
         return (int)(Math.random()*100000);
     }
 
+    static LinkedList<String> getNicknames() {
+        LinkedList<String> nicknames = new LinkedList<String>();
+        while (true) {
+            System.out.println("Enter nickname, blank to end:");
+            String line = System.console().readLine();
+            if (line.isEmpty()) break;
+            nicknames.add(line);
+        }
+        return nicknames;
+    }
+
+    static void writeNicknames(String name, LinkedList<String> nicknames) {
+        try (Connection conn = connect()) { 
+            for (String nickname: nicknames) {
+                String query = String.format("INSERT INTO nicknames VALUES ('%s', '%s')", name, nickname);
+                conn.createStatement().executeUpdate(query);
+                System.err.printf("Sent: %s", query);
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
     public static void main(String[] args) {
+        LinkedList<String> nicknames;
+
         String info;
         int id;
 
         info = get_user_info();
-        id = get_new_id();
         no_semi(info);
+        nicknames = getNicknames();
+        id = get_new_id();
         write_info(id, info);
+        writeNicknames(info, nicknames);
     }
 }

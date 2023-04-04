@@ -2,6 +2,10 @@
 	"folders": [
 		{
 			"path": "."
+		},
+		{
+			"name": "[java-sqli-8d82ded source archive]",
+			"uri": "codeql-zip-archive://0-67/Users/hohn/local/codeql-dataflow-ii-java/java-sqli-8d82ded/src.zip"
 		}
 	],
 	"settings": {

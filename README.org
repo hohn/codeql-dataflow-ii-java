@@ -1,0 +1,15 @@
+
+[[./images/under-construction.png]]
+
+* SQL injection example
+  This is a more advanced version of
+  https://github.com/advanced-security/codeql-workshops-staging/tree/master/java/codeql-dataflow-sql-injection
+
+  Initial results should show a false positive, and false negative (missing path).
+  To that end:
+  - false negative: db write using struct => dataflow won't work, taint-tracking
+    should.  Debug using partial paths.  Add some extra library function so that
+    additional taint steps are needed to propagate.
+  - false positive: second write using safe sql command (pre-compiled), initially
+    shown as false positive (will be sanitizer).  Add a checking-function in this
+    path also (integer from string?).  This one will become a barrier function.

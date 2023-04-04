@@ -1,0 +1,6 @@
+---
+library: false
+name: hohn/codeql-dataflow-ii-java
+version: 0.0.1
+dependencies:
+    codeql/java-all: "*"

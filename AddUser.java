@@ -65,6 +65,17 @@ public class AddUser {
         return nicknames;
     }
 
+    static Nicknames getNicknames1() {
+        Nicknames nicknames = new Nicknames();
+        while (true) {
+            System.out.println("Enter more nicknames, blank to end:");
+            String line = System.console().readLine();
+            if (line.isEmpty()) break;
+            nicknames.addNickname(line);
+        }
+        return nicknames;
+    }
+
     static void writeNicknames(String name, LinkedList<String> nicknames) {
         try (Connection conn = connect()) { 
             for (String nickname: nicknames) {
@@ -77,17 +88,31 @@ public class AddUser {
         }
     }
 
+    static void writeNicknames1(String name, Nicknames nicknames) {
+        try (Connection conn = connect()) { 
+            for (String nickname: nicknames.getNicknames()) {
+                String query = String.format("INSERT INTO nicknames VALUES ('%s', '%s')", name, nickname);
+                conn.createStatement().executeUpdate(query);
+                System.err.printf("Sent: %s", query);
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
     public static void main(String[] args) {
         LinkedList<String> nicknames;
-
+        
         String info;
         int id;
 
         info = get_user_info();
         no_semi(info);
         nicknames = getNicknames();
+        Nicknames nicknames1 = getNicknames1();
         id = get_new_id();
         write_info(id, info);
         writeNicknames(info, nicknames);
+        writeNicknames1(info, nicknames1);
     }
 }

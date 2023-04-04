@@ -1,6 +1,8 @@
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class AddUser {
     public static Connection connect() {
@@ -30,6 +32,23 @@ public class AddUser {
         }
     }
     
+    static void no_semi(String info) {
+        /* no ; allowed */
+        // No CodeQL path found when using if (info.contains(";")) { }
+        // if (info.contains(";")) {
+        //     System.err.printf("invalid string ';' in database write.  Aborting.");
+        //     System.exit(1);
+        // }
+    
+        Pattern pattern = Pattern.compile(";", Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(info);
+        boolean matchFound = matcher.find();
+        if(matchFound) {
+            System.err.printf("invalid string ';' in database write.  Aborting.");
+            System.exit(1);
+        } 
+    }
+
     static int get_new_id() {
         return (int)(Math.random()*100000);
     }
@@ -40,6 +59,7 @@ public class AddUser {
 
         info = get_user_info();
         id = get_new_id();
+        no_semi(info);
         write_info(id, info);
     }
 }

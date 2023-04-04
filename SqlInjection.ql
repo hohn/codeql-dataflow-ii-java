@@ -2,7 +2,7 @@
  * @name SQLI Vulnerability
  * @description Using untrusted strings in a sql query allows sql injection attacks.
  * @kind path-problem
- * @id cpp/SQLIVulnerable
+ * @id dataflow-ii/SQLIVulnerable
  * @problem.severity warning
  */
 
@@ -21,9 +21,9 @@ class SqliFlowConfig extends TaintTracking::Configuration {
         )
     }
 
-    override predicate isSanitizer(DataFlow::Node sanitizer) { none() }
+     override predicate isSanitizer(DataFlow::Node sanitizer) { none() }
 
-    override predicate isAdditionalTaintStep(DataFlow::Node into, DataFlow::Node out) {
+     override predicate isAdditionalTaintStep(DataFlow::Node into, DataFlow::Node out) {
         // Extra taint step
         //     String.format("INSERT INTO users VALUES (%d, '%s')", id, info);
         // Not needed here, but may be needed for larger libraries.

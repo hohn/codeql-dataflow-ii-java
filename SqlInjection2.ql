@@ -11,17 +11,6 @@ import semmle.code.java.dataflow.TaintTracking
 import DataFlow::PathGraph
 import semmle.code.java.dataflow.DataFlow
 
-class SqlSanitizer extends DataFlow::BarrierGuard {
-  override predicate checks(Expr e, boolean branch) {
-    exists(IfStmt ifs |
-      ifs.getEnclosingCallable().getName() = "no_semi" and
-      // ifs.getCondition().getType().toString().matches("%")
-      branch = true and
-      ifs.getCondition() = e
-    )
-  }
-}
-
 class SqliFlowConfig extends TaintTracking::Configuration {
   SqliFlowConfig() { this = "SqliFlow" }
 

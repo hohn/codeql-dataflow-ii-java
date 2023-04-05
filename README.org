@@ -15,6 +15,7 @@
     path also (integer from string?).  This one will become a barrier function.
 
 ** TODO Setup and sample run
+
    The jdbc connector at https://github.com/xerial/sqlite-jdbc, from [[https://github.com/xerial/sqlite-jdbc/releases/download/3.36.0.1/sqlite-jdbc-3.36.0.1.jar][here]] is
    included in the git repository.
 
@@ -182,3 +183,69 @@
      select sink, source, sink, "Possible SQL injection"
    #+END_SRC
 
+
+   
+** misc
+   #+BEGIN_SRC sh
+     codeql  resolve library-path --query=SqlInjection.ql 
+   #+END_SRC
+
+   The data flow and taint tracking libraries have been extended with versions of
+   `isBarrierIn`, `isBarrierOut`, and `isBarrierGuard`, respectively
+   `isSanitizerIn`, `isSanitizerOut`, and `isSanitizerGuard`, that support flow
+   states.
+
+   #+BEGIN_SRC text
+     module BarrierGuard<guardChecksSig/3 guardChecks> {
+       /** Gets a node that is safely guarded by the given guard check. */
+       Node getABarrierNode() {
+         exists(Guard g, SsaVariable v, boolean branch, RValue use |
+           guardChecks(g, v.getAUse(), branch) and
+           use = v.getAUse() and
+           g.controls(use.getBasicBlock(), branch) and
+           result.asExpr() = use
+         )
+       }
+     }
+
+     /**
+      ,* DEPRECATED: Use `BarrierGuard` module instead.
+      ,*
+      ,* A guard that validates some expression.
+      ,*
+      ,* To use this in a configuration, extend the class and provide a
+      ,* characteristic predicate precisely specifying the guard, and override
+      ,* `checks` to specify what is being validated and in which branch.
+      ,*
+      ,* It is important that all extending classes in scope are disjoint.
+      ,*/
+     deprecated class BarrierGuard extends Guard {
+       /** Holds if this guard validates `e` upon evaluating to `branch`. */
+       abstract predicate checks(Expr e, boolean branch);
+
+       /** Gets a node guarded by this guard. */
+       final Node getAGuardedNode() {
+         exists(SsaVariable v, boolean branch, RValue use |
+           this.checks(v.getAUse(), branch) and
+           use = v.getAUse() and
+           this.controls(use.getBasicBlock(), branch) and
+           result.asExpr() = use
+         )
+       }
+     }
+
+   #+END_SRC
+
+
+   #+BEGIN_SRC text
+  override predicate isSanitizer(DataFlow::Node sanitizer) {
+    exists(Call noSemi |
+      noSemi.getCallee().getName() = "no_semi" 
+      and sanitizer.asExpr() = noSemi
+    )
+  }
+   #+END_SRC
+   sanitizer.asExpr() = noSemi
+   does not find no_semi or writeNicknames or write_info.  It finds writeNicknames1 though.
+
+   

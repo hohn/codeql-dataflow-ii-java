@@ -50,6 +50,24 @@ public class AddUser {
         } 
     }
 
+    static String no_semi1(String info) {
+        /* no ; allowed */
+        // No CodeQL path found when using if (info.contains(";")) { }
+        // if (info.contains(";")) {
+        //     System.err.printf("invalid string ';' in database write.  Aborting.");
+        //     System.exit(1);
+        // }
+    
+        Pattern pattern = Pattern.compile(";", Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(info);
+        boolean matchFound = matcher.find();
+        if(matchFound) {
+            System.err.printf("invalid string ';' in database write.  Aborting.");
+            System.exit(1);
+            return "";
+        } else return info;
+    }
+
     static int get_new_id() {
         return (int)(Math.random()*100000);
     }
@@ -106,8 +124,8 @@ public class AddUser {
         String info;
         int id;
 
-        info = get_user_info();
-        no_semi(info);
+        info = no_semi1(get_user_info());
+        no_semi(info); // ignored by query :(
         nicknames = getNicknames();
         Nicknames nicknames1 = getNicknames1();
         id = get_new_id();

@@ -1,7 +1,7 @@
 /**
  * @name SQLI Vulnerability
  * @description Using untrusted strings in a sql query allows sql injection attacks.
- * @ kind path-problem
+ * @kind path-problem
  * @id dataflow-ii/SQLIVulnerable
  * @problem.severity warning
  */
@@ -38,6 +38,7 @@ class SqliFlowConfig extends TaintTracking::Configuration {
       noSemi.getCallee().getName() = "no_semi1" 
       and sanitizer.asExpr() = noSemi // try this alone, notice missing no_semi
       )
+    //  none()
   }
 
   override predicate isAdditionalTaintStep(DataFlow::Node into, DataFlow::Node out) {
@@ -45,22 +46,21 @@ class SqliFlowConfig extends TaintTracking::Configuration {
   }
 
   override predicate isSink(DataFlow::Node sink) {
-    // check flow reach, manually.
-    // exists(Call exec |
-    //   exec.getCallee().getName() = "executeUpdate" and
-    //   exec.getArgument(0) = sink.asExpr()
-    // )
-    any()
+    //    check flow reach, manually.
+    exists(Call exec |
+      exec.getCallee().getName() = "executeUpdate" and
+      exec.getArgument(0) = sink.asExpr()
+    )
   }
 }
 
-/* from SqliFlowConfig conf, DataFlow::PathNode source, DataFlow::PathNode sink
+from SqliFlowConfig conf, DataFlow::PathNode source, DataFlow::PathNode sink
 where conf.hasFlowPath(source, sink)
 select sink, source, sink, "Possible SQL injection"
- */
+
 
 // check flow reach, manually.
-from SqliFlowConfig conf, DataFlow::Node source, DataFlow::Node sink
-where conf.hasFlow(source, sink)
-select source, sink
+// from SqliFlowConfig conf, DataFlow::Node source, DataFlow::Node sink
+// where conf.hasFlow(source, sink)
+// select source, sink
  

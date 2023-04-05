@@ -11,32 +11,35 @@ import semmle.code.java.dataflow.TaintTracking
 import DataFlow::PathGraph
 
 class SqliFlowConfig extends TaintTracking::Configuration {
-    SqliFlowConfig() { this = "SqliFlow" }
+  SqliFlowConfig() { this = "SqliFlow" }
 
-    override predicate isSource(DataFlow::Node source) {
-        // System.console().readLine();
-        exists(Call read |
-            read.getCallee().getName() = "readLine" and
-            read = source.asExpr()
-        )
-    }
+  override predicate isSource(DataFlow::Node source) {
+    // System.console().readLine();
+    exists(Call read |
+      read.getCallee().getName() = "readLine" and
+      read = source.asExpr()
+    )
+  }
 
-     override predicate isSanitizer(DataFlow::Node sanitizer) { none() }
+  override predicate isSanitizer(DataFlow::Node sanitizer) { none() }
 
-     override predicate isAdditionalTaintStep(DataFlow::Node into, DataFlow::Node out) {
-        // Extra taint step
-        //     String.format("INSERT INTO users VALUES (%d, '%s')", id, info);
-        // Not needed here, but may be needed for larger libraries.
-        none()
-    }
+  override predicate isAdditionalTaintStep(DataFlow::Node into, DataFlow::Node out) {
+    // Extra taint step
+    //     String.format("INSERT INTO users VALUES (%d, '%s')", id, info);
+    // Not needed here, but may be needed for larger libraries.
+    exists(MethodAccess ma | ma.getMethod().hasName("concat") |
+      ma.getAnArgument() = into.asExpr() and
+      ma = out.asExpr()
+    )
+  }
 
-    override predicate isSink(DataFlow::Node sink) {
-        // conn.createStatement().executeUpdate(query);
-        exists(Call exec |
-            exec.getCallee().getName() = "executeUpdate" and
-            exec.getArgument(0) = sink.asExpr()
-        )
-    }
+  override predicate isSink(DataFlow::Node sink) {
+    // conn.createStatement().executeUpdate(query);
+    exists(Call exec |
+      exec.getCallee().getName() = "executeUpdate" and
+      exec.getArgument(0) = sink.asExpr()
+    )
+  }
 }
 
 from SqliFlowConfig conf, DataFlow::PathNode source, DataFlow::PathNode sink

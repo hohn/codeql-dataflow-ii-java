@@ -1,3 +1,4 @@
 #!/bin/bash
-javac AddUser.java
+javac -cp "../utils.jar:." AddUser.java Nicknames.java
+#javac -cp . Nicknames.java
 

@@ -1,7 +1,7 @@
 /**
  * @name SQLI Vulnerability
  * @description Using untrusted strings in a sql query allows sql injection attacks.
- * @kind path-problem
+ * @ kind path-problem
  * @id dataflow-ii/SQLIVulnerable
  * @problem.severity warning
  */
@@ -9,6 +9,7 @@
 import java
 import semmle.code.java.dataflow.TaintTracking
 import DataFlow::PathGraph
+import semmle.code.java.dataflow.DataFlow
 
 class SqlSanitizer extends DataFlow::BarrierGuard {
   override predicate checks(Expr e, boolean branch) {
@@ -39,22 +40,27 @@ class SqliFlowConfig extends TaintTracking::Configuration {
       )
   }
 
-  //  deprecated override predicate isSanitizerGuard(DataFlow::BarrierGuard guard) {
-  //     guard instanceof SqlSanitizer
-  //   }
   override predicate isAdditionalTaintStep(DataFlow::Node into, DataFlow::Node out) {
     none()
   }
 
   override predicate isSink(DataFlow::Node sink) {
-    // conn.createStatement().executeUpdate(query);
-    exists(Call exec |
-      exec.getCallee().getName() = "executeUpdate" and
-      exec.getArgument(0) = sink.asExpr()
-    )
+    // check flow reach, manually.
+    // exists(Call exec |
+    //   exec.getCallee().getName() = "executeUpdate" and
+    //   exec.getArgument(0) = sink.asExpr()
+    // )
+    any()
   }
 }
 
-from SqliFlowConfig conf, DataFlow::PathNode source, DataFlow::PathNode sink
+/* from SqliFlowConfig conf, DataFlow::PathNode source, DataFlow::PathNode sink
 where conf.hasFlowPath(source, sink)
 select sink, source, sink, "Possible SQL injection"
+ */
+
+// check flow reach, manually.
+from SqliFlowConfig conf, DataFlow::Node source, DataFlow::Node sink
+where conf.hasFlow(source, sink)
+select source, sink
+ 

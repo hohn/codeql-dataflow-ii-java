@@ -248,4 +248,22 @@
    sanitizer.asExpr() = noSemi
    does not find no_semi or writeNicknames or write_info.  It finds writeNicknames1 though.
 
+   The partial flow no longer exists?
+   #+BEGIN_SRC text
+     from EntityNameMatchCfg cfg, DataFlow::PartialPathNode src, DataFlow::PartialPathNode sink
+     where cfg.hasPartialFlow(src, sink, 25)
+     select src, sink
+   #+END_SRC
+   https://codeql.github.com/docs/writing-codeql-queries/debugging-data-flow-queries-using-partial-flow/
+   
+
+   #+BEGIN_SRC text
+     String line = System.console().readLine();
+     if (line.isEmpty()) break;
+     nicknames.addNickname(line);
+   #+END_SRC
+   line as source only flows to nicknames;
+
+   nicknames.addNickname() has to propagate to nicknames.getNicknames()
+
    
